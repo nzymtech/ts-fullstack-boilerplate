@@ -1,5 +1,9 @@
 export default function LoginPage() {
-    const a = 23;
+    const a = 23345;
 
-    return <></>;
+    return (
+    <>
+    </>
+    
+);
 }
