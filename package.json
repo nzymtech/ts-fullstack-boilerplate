@@ -7,17 +7,17 @@
     "start:web": "pnpm --stream -r run dev",
     "test": "echo \"Error: no test specified\" && exit 1",
     "precommit": "lint-staged",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "lint-staged": {
-      "*.{js,jsx,ts,tsx}": [
-          "eslint --fix"
-      ]
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
+    ]
   },
   "husky": {
-      "hooks": {
-          "pre-commit": "pnpm precommit"
-      }
+    "hooks": {
+      "pre-commit": "pnpm run precommit"
+    }
   },
   "keywords": [],
   "author": "",
