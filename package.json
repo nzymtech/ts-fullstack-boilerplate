@@ -5,9 +5,25 @@
   "main": "index.js",
   "scripts": {
     "start:web": "pnpm --stream -r run dev",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "precommit": "lint-staged",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+      "*.{js,jsx,ts,tsx}": [
+          "eslint --fix"
+      ]
+  },
+  "husky": {
+      "hooks": {
+          "pre-commit": "pnpm precommit"
+      }
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2"
+  }
 }
