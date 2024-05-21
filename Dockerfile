@@ -1,27 +1,20 @@
-# Prepare workspace 
-FROM node:18-alpine as workspace
-RUN corepack enable && corepack prepare pnpm@9.1.2 --activate
+FROM node:20-slim AS base
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
-COPY pnpm-lock.yaml .
-COPY package.json .
+FROM base AS build
+COPY . /usr/src/app
+WORKDIR /usr/src/app
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-RUN pnpm install --prod
+FROM build as serverBuild
+WORKDIR /usr/src/app
+RUN pnpm run -F=server build
 
-WORKDIR /app
-COPY . . 
+FROM base AS server
+WORKDIR /usr/src/app 
 
-## Create minimal deployment for the api package
-
-FROM workspace AS serverBuild
-WORKDIR /app
-RUN pnpm -F=server run build
-
-## Production image 
-FROM node:18-alpine 
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-COPY --from=serverBuild /app/server/dist dist
-
-ENTRYPOINT ["node", "dist/main"]
+COPY --from=serverBuild /usr/src/app/server/package.json package.json
+COPY --from=serverBuild /usr/src/app/server/dist dist
+COPY --from=serverBuild /usr/src/app/server/node_modules node_modules
+CMD [ "node", "dist/main.js" ]
