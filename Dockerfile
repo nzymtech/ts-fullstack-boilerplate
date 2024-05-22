@@ -8,13 +8,12 @@ WORKDIR /usr/src/app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 FROM build as serverBuild
-WORKDIR /usr/src/app
-RUN pnpm run -F=server build
+WORKDIR /usr/src/app/server
+RUN npm i -g @vercel/ncc
+RUN npx ncc build src/main.ts --out dist
 
 FROM base AS server
-WORKDIR /usr/src/app 
-
-COPY --from=serverBuild /usr/src/app/server/package.json package.json
+WORKDIR /usr/src/app
+EXPOSE 3033 
 COPY --from=serverBuild /usr/src/app/server/dist dist
-COPY --from=serverBuild /usr/src/app/server/node_modules node_modules
-CMD [ "node", "dist/main.js" ]
+CMD [ "node", "dist/index.js" ]
