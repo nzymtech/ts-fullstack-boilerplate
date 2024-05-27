@@ -17,3 +17,18 @@ WORKDIR /usr/src/app
 EXPOSE 3033 
 COPY --from=serverBuild /usr/src/app/server/dist dist
 CMD [ "node", "dist/index.js" ]
+
+FROM build AS webBuild
+WORKDIR /usr/src/app/web
+RUN pnpm run prebuild 
+RUN pnpm run build 
+RUN pnpm prune --production 
+
+FROM base AS web
+WORKDIR /app
+COPY --from=webBuild /usr/src/app/web/package.json ./package.json
+COPY --from=webBuild /usr/src/app/web/node_modules ./node_modules
+COPY --from=webBuild /usr/src/app/web/.next ./.next 
+COPY --from=webBuild /usr/src/app/web/public ./public
+EXPOSE 3000
+CMD ["pnpm","start"]
